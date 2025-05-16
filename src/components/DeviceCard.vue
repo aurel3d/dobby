@@ -105,7 +105,7 @@ const updateColorTemp = (value: number) => {
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   border: 1px solid rgba(var(--neon-blue), 0.2) !important;
-  border-radius: 16px !important;
+  border-radius: 24px !important;
   box-shadow: 0 8px 32px rgba(var(--neon-blue), 0.1) !important;
   transition: all 0.3s ease;
   position: relative;
@@ -124,7 +124,7 @@ const updateColorTemp = (value: number) => {
     rgba(var(--neon-pink), 0.3),
     rgba(var(--neon-purple), 0.3)
   );
-  border-radius: 16px;
+  border-radius: 24px;
   z-index: -1;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -144,7 +144,7 @@ const updateColorTemp = (value: number) => {
   color: rgba(255, 255, 255, 0.9);
   padding: 0.5rem;
   background: rgba(var(--cyber-bg), 0.3);
-  border-radius: 8px;
+  border-radius: 16px;
   border: 1px solid rgba(var(--neon-purple), 0.2);
 }
 
@@ -166,7 +166,7 @@ const updateColorTemp = (value: number) => {
   gap: 1rem;
   padding: 1rem;
   background: rgba(var(--cyber-bg), 0.3);
-  border-radius: 12px;
+  border-radius: 18px;
   border: 1px solid rgba(var(--neon-blue), 0.2);
   position: relative;
 }
@@ -200,7 +200,7 @@ const updateColorTemp = (value: number) => {
   position: relative;
   background: rgba(var(--cyber-bg), 0.9);
   border: 2px solid rgba(var(--neon-blue), 0.3);
-  border-radius: 4px;
+  border-radius: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -211,7 +211,8 @@ const updateColorTemp = (value: number) => {
   letter-spacing: 1px;
   transition: all 0.3s ease;
   overflow: hidden;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 0 8px rgba(var(--neon-blue), 0.5);
 }
 
 .cyber-button::before {
@@ -259,8 +260,10 @@ const updateColorTemp = (value: number) => {
 .cyber-button.is-on {
   background: rgba(var(--neon-blue), 0.2);
   border-color: rgba(var(--neon-blue), 0.8);
-  color: rgba(var(--neon-blue), 1);
-  text-shadow: 0 0 8px rgba(var(--neon-blue), 0.5);
+  color: #ffffff;
+  text-shadow: 
+    0 0 10px rgba(var(--neon-blue), 0.7),
+    0 0 20px rgba(var(--neon-blue), 0.5);
   box-shadow: 
     0 0 15px rgba(var(--neon-blue), 0.3),
     inset 0 0 10px rgba(var(--neon-blue), 0.2);
@@ -337,7 +340,7 @@ const updateColorTemp = (value: number) => {
   align-items: center;
   padding: 0.5rem;
   background: rgba(var(--cyber-bg), 0.2);
-  border-radius: 4px;
+  border-radius: 12px;
   border: 1px solid rgba(var(--neon-blue), 0.1);
 }
 
@@ -351,7 +354,7 @@ const updateColorTemp = (value: number) => {
   font-family: monospace;
   padding: 0.2rem 0.4rem;
   background: rgba(var(--cyber-bg), 0.3);
-  border-radius: 4px;
+  border-radius: 10px;
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -362,7 +365,7 @@ const updateColorTemp = (value: number) => {
   margin-top: 1rem;
   background: transparent !important;
   border: 1px solid rgba(var(--neon-blue), 0.2) !important;
-  border-radius: 8px;
+  border-radius: 16px;
 }
 
 :deep(.n-collapse-item__header) {

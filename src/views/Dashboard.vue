@@ -129,7 +129,7 @@ onMounted(() => {
   margin-bottom: 2rem;
   padding: 1.5rem;
   background: rgba(var(--cyber-bg-2), 0.7);
-  border-radius: 16px;
+  border-radius: 28px;
   box-shadow: 0 8px 32px rgba(var(--neon-blue), 0.1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -182,22 +182,33 @@ onMounted(() => {
   -webkit-backdrop-filter: blur(10px) !important;
   border: 1px solid rgba(var(--neon-purple), 0.3) !important;
   box-shadow: 0 0 10px rgba(var(--neon-purple), 0.1) !important;
+  border-radius: 12px !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-shadow: 0 0 8px rgba(var(--neon-purple), 0.5) !important;
+  font-weight: 500 !important;
 }
 
 .glass-tag.n-tag--success {
   border-color: rgba(var(--neon-blue), 0.5) !important;
   box-shadow: 0 0 10px rgba(var(--neon-blue), 0.2) !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 8px rgba(var(--neon-blue), 0.5) !important;
 }
 
 .glass-tag.n-tag--error {
   border-color: rgba(var(--neon-pink), 0.5) !important;
   box-shadow: 0 0 10px rgba(var(--neon-pink), 0.2) !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 8px rgba(var(--neon-pink), 0.5) !important;
 }
 
 .glass-button {
   background: rgba(var(--neon-purple), 0.2) !important;
   border: 1px solid rgba(var(--neon-purple), 0.3) !important;
   box-shadow: 0 0 10px rgba(var(--neon-purple), 0.1) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-shadow: 0 0 8px rgba(var(--neon-purple), 0.5) !important;
+  font-weight: 500 !important;
 }
 
 .glass-button:hover:not(:disabled) {
@@ -205,12 +216,14 @@ onMounted(() => {
   border-color: rgba(var(--neon-purple), 0.5) !important;
   box-shadow: 0 0 15px rgba(var(--neon-purple), 0.2) !important;
   transform: translateY(-1px);
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(var(--neon-purple), 0.7) !important;
 }
 
 .glass-empty {
   background: rgba(var(--cyber-bg-2), 0.7);
   padding: 2rem;
-  border-radius: 16px;
+  border-radius: 24px;
   box-shadow: 0 8px 32px rgba(var(--neon-blue), 0.1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);

@@ -72,18 +72,18 @@ html::before {
 
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
   background: rgba(var(--neon-blue), 0.1);
-  border-radius: 4px;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: rgba(var(--neon-pink), 0.3);
-  border-radius: 4px;
+  border-radius: 10px;
   border: 1px solid rgba(var(--neon-blue), 0.2);
 }
 
@@ -97,6 +97,7 @@ html::before {
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   border: 1px solid rgba(var(--neon-blue), 0.2) !important;
+  border-radius: 24px !important;
 }
 
 /* Global button styles */
@@ -104,11 +105,23 @@ html::before {
   background: rgba(var(--neon-blue), 0.2) !important;
   border: 1px solid rgba(var(--neon-blue), 0.3) !important;
   box-shadow: 0 0 10px rgba(var(--neon-blue), 0.1) !important;
+  border-radius: 12px !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-shadow: 0 0 8px rgba(var(--neon-blue), 0.5) !important;
+  font-weight: 500 !important;
 }
 
 .n-button:hover {
   background: rgba(var(--neon-blue), 0.3) !important;
   border: 1px solid rgba(var(--neon-blue), 0.5) !important;
   box-shadow: 0 0 15px rgba(var(--neon-blue), 0.2) !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(var(--neon-blue), 0.7) !important;
+}
+
+.n-button:disabled {
+  opacity: 0.5 !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  text-shadow: none !important;
 }
 </style>
