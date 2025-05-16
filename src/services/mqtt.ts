@@ -210,6 +210,47 @@ class MQTTService {
     console.log('Manually refreshing devices list');
     this.requestDevices();
   }
+
+  // Method to turn off all lights
+  turnOffAllLights() {
+    if (!this.client) return;
+    console.log('Turning off all lights...');
+    
+    // Log all devices and their descriptions
+    console.log('All devices:', Array.from(devices.value.values()).map(d => ({
+      name: d.friendly_name,
+      description: d.definition?.description,
+      state: d.state
+    })));
+    
+    // Get all devices that are lights (check both description and features)
+    const lights = Array.from(devices.value.values()).filter(device => {
+      const isLight = 
+        // Check description
+        device.definition?.description?.toLowerCase().includes('light') ||
+        // Check if device has brightness or color features
+        device.state?.brightness !== undefined ||
+        device.state?.color !== undefined ||
+        device.state?.color_temp !== undefined ||
+        // Check if device has state ON/OFF capability
+        device.state?.state === 'ON' || device.state?.state === 'OFF';
+      
+      if (isLight) {
+        console.log(`Found light: ${device.friendly_name}`, device);
+      }
+      return isLight;
+    });
+    
+    console.log(`Found ${lights.length} lights to turn off`);
+    
+    // Turn off each light
+    lights.forEach(light => {
+      console.log(`Turning off light: ${light.friendly_name}`);
+      this.sendCommand(light.friendly_name, {
+        state: 'OFF'
+      });
+    });
+  }
 }
 
 export const mqttService = new MQTTService();

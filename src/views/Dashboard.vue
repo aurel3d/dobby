@@ -14,6 +14,13 @@
               <n-tag>
                 {{ deviceCount }} Devices
               </n-tag>
+              <n-button 
+                type="warning" 
+                @click="turnOffAllLights"
+                :disabled="!mqttConnected"
+              >
+                Turn Off All Lights
+              </n-button>
             </n-space>
           </template>
         </n-page-header>
@@ -70,6 +77,11 @@ const mqttConnected = isConnected;
 const refreshDevices = () => {
   console.log('Refreshing devices...');
   mqttService.refreshDevices();
+};
+
+const turnOffAllLights = () => {
+  console.log('Turning off all lights...');
+  mqttService.turnOffAllLights();
 };
 
 onMounted(() => {
