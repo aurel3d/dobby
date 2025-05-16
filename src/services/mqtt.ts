@@ -84,7 +84,8 @@ class MQTTService {
     const topics: string[] = [
       `${this.topicPrefix}/bridge/devices`,
       `${this.topicPrefix}/bridge/response/devices`,
-      `${this.topicPrefix}/+`
+      `${this.topicPrefix}/+`,
+      `${this.topicPrefix}/bridge/state` // Add bridge state subscription
     ];
 
     topics.forEach(topic => {
@@ -119,8 +120,16 @@ class MQTTService {
 
   private handleMessage(topic: string, message: Buffer) {
     try {
-      const payload = JSON.parse(message.toString());
-      console.log('Parsed message for topic', topic, ':', payload);
+      const messageStr = message.toString();
+      console.log(`Processing message for topic ${topic}:`, messageStr);
+      
+      // Special handling for bridge state
+      if (topic === `${this.topicPrefix}/bridge/state`) {
+        console.log('Received bridge state:', messageStr);
+        return;
+      }
+
+      const payload = JSON.parse(messageStr);
       
       if (topic === `${this.topicPrefix}/bridge/devices` || 
           topic === `${this.topicPrefix}/bridge/response/devices`) {
@@ -128,7 +137,22 @@ class MQTTService {
         console.log('Processing devices list. Current device count:', devices.value.size);
         if (Array.isArray(payload)) {
           payload.forEach((device: Device) => {
-            console.log('Adding device:', device.friendly_name);
+            console.log('Processing device:', device.friendly_name, 'Current state:', device.state);
+            // Initialize state with availability if not present
+            if (!device.state) {
+              device.state = {};
+            }
+            // Check if device already exists
+            const existingDevice = devices.value.get(device.friendly_name);
+            if (existingDevice) {
+              // Preserve existing state
+              device.state = { ...existingDevice.state, ...device.state };
+            }
+            // Ensure availability is set
+            if (device.state.available === undefined) {
+              device.state.available = true; // Default to true when device is discovered
+            }
+            console.log('Setting device with state:', device.state);
             devices.value.set(device.friendly_name, device);
           });
           console.log('Updated devices list. New device count:', devices.value.size);
@@ -143,7 +167,16 @@ class MQTTService {
         const device = devices.value.get(deviceName);
         if (device) {
           console.log('Updating state for device:', deviceName);
+          console.log('Current state:', device.state);
+          console.log('New state payload:', payload);
+          
+          // If payload has linkquality, device is available
+          if ('linkquality' in payload) {
+            payload.available = true;
+          }
+          
           device.state = { ...device.state, ...payload };
+          console.log('Updated state:', device.state);
           devices.value.set(deviceName, device);
           // Force reactivity update
           devices.value = new Map(devices.value);
