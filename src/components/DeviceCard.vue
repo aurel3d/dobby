@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { NCard, NTag, NSwitch, NSlider } from 'naive-ui';
+import { NCard, NTag, NSwitch, NSlider, NCollapse, NCollapseItem } from 'naive-ui';
 import type { Device } from '@/services/mqtt';
 import mqttService from '@/services/mqtt';
 
@@ -322,5 +322,55 @@ const updateColorTemp = (value: number) => {
 
 :deep(.n-slider-handle:hover) {
   box-shadow: 0 0 20px rgba(var(--neon-pink), 0.5) !important;
+}
+
+.properties-list {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.property-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: rgba(var(--cyber-bg), 0.2);
+  border-radius: 4px;
+  border: 1px solid rgba(var(--neon-blue), 0.1);
+}
+
+.property-name {
+  color: rgba(var(--neon-yellow), 0.9);
+  font-weight: 500;
+}
+
+.property-value {
+  color: rgba(255, 255, 255, 0.9);
+  font-family: monospace;
+  padding: 0.2rem 0.4rem;
+  background: rgba(var(--cyber-bg), 0.3);
+  border-radius: 4px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(.n-collapse) {
+  margin-top: 1rem;
+  background: transparent !important;
+  border: 1px solid rgba(var(--neon-blue), 0.2) !important;
+  border-radius: 8px;
+}
+
+:deep(.n-collapse-item__header) {
+  background: rgba(var(--cyber-bg), 0.3) !important;
+  color: rgba(var(--neon-blue), 0.9) !important;
+}
+
+:deep(.n-collapse-item__content-inner) {
+  background: rgba(var(--cyber-bg), 0.1) !important;
 }
 </style> 

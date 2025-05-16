@@ -49,6 +49,8 @@
             </template>
           </n-empty>
         </template>
+
+        <AutomationManager />
       </n-layout-content>
     </n-layout>
   </div>
@@ -69,6 +71,7 @@ import {
 import DeviceCard from '@/components/DeviceCard.vue';
 import { useDeviceStore } from '@/stores/devices';
 import mqttService, { isConnected } from '@/services/mqtt';
+import AutomationManager from '@/components/AutomationManager.vue';
 
 const store = useDeviceStore();
 const deviceGroups = computed(() => store.devicesByType);
