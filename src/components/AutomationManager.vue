@@ -7,31 +7,40 @@
         </n-button>
       </template>
 
-      <n-list v-if="automationStore.automations.length > 0">
-        <n-list-item v-for="automation in automationStore.automations" :key="automation.id">
-          <n-space justify="space-between" align="center" style="width: 100%">
-            <div>
-              <h3>{{ automation.name }}</h3>
-              <p class="automation-summary">
-                {{ summarizeAutomation(automation) }}
-              </p>
-            </div>
-            <n-space>
-              <n-switch 
-                v-model:value="automation.enabled"
-                @update:value="(value) => updateAutomationState(automation, value)"
-              />
-              <n-button @click="editAutomation(automation)" type="info" class="cyber-button">
-                Edit
-              </n-button>
-              <n-button @click="removeAutomation(automation.id)" type="error" class="cyber-button">
-                Delete
-              </n-button>
+      <n-spin :show="automationStore.loading">
+        <n-alert v-if="automationStore.error" type="error" :title="automationStore.error" style="margin-bottom: 16px" />
+        
+        <n-list v-if="automationStore.automations.length > 0">
+          <n-list-item v-for="automation in automationStore.automations" :key="automation.id">
+            <n-space justify="space-between" align="center" style="width: 100%">
+              <div>
+                <h3>{{ automation.name }}</h3>
+                <p class="automation-summary">
+                  {{ summarizeAutomation(automation) }}
+                </p>
+              </div>
+              <n-space>
+                <n-switch 
+                  v-model:value="automation.enabled"
+                  @update:value="(value) => updateAutomationState(automation, value)"
+                />
+                <n-button @click="editAutomation(automation)" type="info" class="cyber-button">
+                  Edit
+                </n-button>
+                <n-popconfirm @positive-click="removeAutomation(automation.id)">
+                  <template #trigger>
+                    <n-button type="error" class="cyber-button">
+                      Delete
+                    </n-button>
+                  </template>
+                  Are you sure you want to delete this automation?
+                </n-popconfirm>
+              </n-space>
             </n-space>
-          </n-space>
-        </n-list-item>
-      </n-list>
-      <n-empty v-else description="No automations created yet" />
+          </n-list-item>
+        </n-list>
+        <n-empty v-else description="No automations created yet" />
+      </n-spin>
     </n-card>
 
     <n-modal v-model:show="showCreateModal" style="width: 600px" preset="card" title="Create Automation">
@@ -211,7 +220,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import {
   NCard,
   NButton,
@@ -227,7 +236,10 @@ import {
   NSelect,
   NTimePicker,
   NDivider,
-  NSwitch
+  NSwitch,
+  NSpin,
+  NAlert,
+  NPopconfirm
 } from 'naive-ui';
 import { useAutomationStore } from '@/services/automation';
 import type { Automation, Trigger, Condition, Action } from '@/types/automation';
@@ -395,18 +407,31 @@ function removeAction(index: number) {
   automationForm.value.actions.splice(index, 1);
 }
 
-function updateAutomationState(automation: Automation, enabled: boolean) {
-  automationStore.updateAutomation({ ...automation, enabled });
+// Load automations when component mounts
+onMounted(async () => {
+  await automationStore.loadAutomations();
+});
+
+async function updateAutomationState(automation: Automation, enabled: boolean) {
+  try {
+    await automationStore.updateAutomation({ ...automation, enabled });
+  } catch (error) {
+    // The store already handles the error state
+  }
 }
 
-function saveAutomation() {
-  if (editingAutomation.value) {
-    automationStore.updateAutomation(automationForm.value);
-  } else {
-    automationStore.addAutomation(automationForm.value);
+async function saveAutomation() {
+  try {
+    if (editingAutomation.value) {
+      await automationStore.updateAutomation(automationForm.value);
+    } else {
+      await automationStore.addAutomation(automationForm.value);
+    }
+    showCreateModal.value = false;
+    resetForm();
+  } catch (error) {
+    // The store already handles the error state
   }
-  showCreateModal.value = false;
-  resetForm();
 }
 
 const editingAutomation = ref<Automation | null>(null);
@@ -417,8 +442,12 @@ function editAutomation(automation: Automation) {
   showCreateModal.value = true;
 }
 
-function removeAutomation(id: string) {
-  automationStore.removeAutomation(id);
+async function removeAutomation(id: string) {
+  try {
+    await automationStore.removeAutomation(id);
+  } catch (error) {
+    // The store already handles the error state
+  }
 }
 
 function resetForm() {

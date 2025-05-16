@@ -1,0 +1,24 @@
+[
+  {
+    "name": "test",
+    "enabled": true,
+    "triggers": [
+      {
+        "type": "device",
+        "deviceId": "0x54ef441000efe8cd",
+        "property": "state",
+        "value": "ON"
+      }
+    ],
+    "conditions": [],
+    "actions": [
+      {
+        "type": "device",
+        "deviceId": "0x54ef441000e99bcc",
+        "command": "state",
+        "value": "ON"
+      }
+    ],
+    "id": "4a4c147c-fbba-44ef-be04-99aa10d344fc"
+  }
+]

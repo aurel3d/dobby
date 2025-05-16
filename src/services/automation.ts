@@ -3,8 +3,7 @@ import { defineStore } from 'pinia';
 import type { Automation, Trigger, Condition, Action, TimeOfDay, DayOfWeek } from '@/types/automation';
 import mqttService, { devices } from '@/services/mqtt';
 import type { Device } from '@/types/mqtt';
-
-const STORAGE_KEY = 'dobby_automations';
+import { AutomationService } from './AutomationService';
 
 // Add a Set to track recently executed automations
 const recentlyExecuted = new Set<string>();
@@ -25,42 +24,29 @@ function debounce(func: Function, wait: number) {
 export const useAutomationStore = defineStore('automation', () => {
   const automations = ref<Automation[]>([]);
   const activeTimers = new Map<string, NodeJS.Timeout>();
+  const loading = ref(false);
+  const error = ref<string | null>(null);
 
-  // Load saved automations
-  function loadAutomations() {
+  // Load automations from server
+  async function loadAutomations() {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        automations.value = parsed;
-        // Setup timers for all loaded automations
-        automations.value.forEach(automation => {
-          if (automation.enabled) {
-            setupTimeTriggers(automation);
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Error loading automations:', error);
+      loading.value = true;
+      error.value = null;
+      const data = await AutomationService.getAutomations();
+      automations.value = data;
+      // Setup timers for all loaded automations
+      automations.value.forEach(automation => {
+        if (automation.enabled) {
+          setupTimeTriggers(automation);
+        }
+      });
+    } catch (err) {
+      console.error('Error loading automations:', err);
+      error.value = 'Failed to load automations';
+    } finally {
+      loading.value = false;
     }
   }
-
-  // Save automations to localStorage
-  function saveAutomations() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(automations.value));
-    } catch (error) {
-      console.error('Error saving automations:', error);
-    }
-  }
-
-  // Watch for changes in automations and save them
-  watch(() => automations.value, () => {
-    saveAutomations();
-  }, { deep: true });
-
-  // Initialize by loading saved automations
-  loadAutomations();
 
   // Watch for device state changes
   watch(() => devices.value, (devices) => {
@@ -111,7 +97,6 @@ export const useAutomationStore = defineStore('automation', () => {
       
       case 'state':
         if (!trigger.stateKey || !trigger.stateValue) return false;
-        // Implement state checking logic here
         return false;
       
       default:
@@ -149,7 +134,6 @@ export const useAutomationStore = defineStore('automation', () => {
           return evaluateCondition(now, condition.operator, time);
 
         case 'state':
-          // Implement state condition checking
           return true;
 
         default:
@@ -177,7 +161,6 @@ export const useAutomationStore = defineStore('automation', () => {
 
         case 'notification':
           if (action.message) {
-            // Implement notification system
             console.log(`[${action.level || 'info'}] ${action.message}`);
           }
           break;
@@ -207,37 +190,65 @@ export const useAutomationStore = defineStore('automation', () => {
     return days[date.getDay()];
   }
 
-  function addAutomation(automation: Omit<Automation, 'id'>) {
-    const id = crypto.randomUUID();
-    const newAutomation = { ...automation, id };
-    automations.value.push(newAutomation);
-    if (newAutomation.enabled) {
-      setupTimeTriggers(newAutomation);
-    }
-    saveAutomations(); // Save after adding
-  }
-
-  function removeAutomation(id: string) {
-    const index = automations.value.findIndex(a => a.id === id);
-    if (index !== -1) {
-      clearAutomationTimers(automations.value[index]);
-      automations.value.splice(index, 1);
-      saveAutomations(); // Save after removing
-    }
-  }
-
-  function updateAutomation(automation: Automation) {
-    const index = automations.value.findIndex(a => a.id === automation.id);
-    if (index !== -1) {
-      // Clear existing timers
-      clearAutomationTimers(automations.value[index]);
-      // Update automation
-      automations.value[index] = automation;
-      // Setup new timers if enabled
-      if (automation.enabled) {
-        setupTimeTriggers(automation);
+  async function addAutomation(automation: Omit<Automation, 'id'>) {
+    try {
+      loading.value = true;
+      error.value = null;
+      const newAutomation = await AutomationService.createAutomation(automation);
+      automations.value.push(newAutomation);
+      if (newAutomation.enabled) {
+        setupTimeTriggers(newAutomation);
       }
-      saveAutomations(); // Save after updating
+    } catch (err) {
+      console.error('Error adding automation:', err);
+      error.value = 'Failed to add automation';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function removeAutomation(id: string) {
+    try {
+      loading.value = true;
+      error.value = null;
+      await AutomationService.deleteAutomation(id);
+      const index = automations.value.findIndex(a => a.id === id);
+      if (index !== -1) {
+        clearAutomationTimers(automations.value[index]);
+        automations.value.splice(index, 1);
+      }
+    } catch (err) {
+      console.error('Error removing automation:', err);
+      error.value = 'Failed to remove automation';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function updateAutomation(automation: Automation) {
+    try {
+      loading.value = true;
+      error.value = null;
+      const updatedAutomation = await AutomationService.updateAutomation(automation);
+      const index = automations.value.findIndex(a => a.id === automation.id);
+      if (index !== -1) {
+        // Clear existing timers
+        clearAutomationTimers(automations.value[index]);
+        // Update automation
+        automations.value[index] = updatedAutomation;
+        // Setup new timers if enabled
+        if (updatedAutomation.enabled) {
+          setupTimeTriggers(updatedAutomation);
+        }
+      }
+    } catch (err) {
+      console.error('Error updating automation:', err);
+      error.value = 'Failed to update automation';
+      throw err;
+    } finally {
+      loading.value = false;
     }
   }
 
@@ -283,6 +294,8 @@ export const useAutomationStore = defineStore('automation', () => {
 
   return {
     automations,
+    loading,
+    error,
     addAutomation,
     removeAutomation,
     updateAutomation,
