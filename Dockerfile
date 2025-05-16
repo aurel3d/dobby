@@ -15,17 +15,14 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine
+FROM nginx:alpine
 
-WORKDIR /app
+# Copy built files to nginx
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy built files and dependencies
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
+# Copy nginx configuration if needed
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose ports
-EXPOSE 3000
+EXPOSE 80
 
-# Start the server
-CMD ["node", "dist/server/index.js"] 
+CMD ["nginx", "-g", "daemon off;"] 

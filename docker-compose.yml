@@ -1,26 +1,28 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "80:80"
     environment:
       - NODE_ENV=production
-      - MQTT_BROKER_URL=mqtt://mosquitto:1883
+      - VITE_API_URL=http://192.168.2.244:3000
     depends_on:
-      - mosquitto
+      - server
     restart: unless-stopped
 
-  mosquitto:
-    image: eclipse-mosquitto:latest
-    ports:
-      - "1883:1883"
-      - "9001:9001"
-    volumes:
-      - mosquitto_data:/mosquitto/data
-      - mosquitto_log:/mosquitto/log
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+  server:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    network_mode: "host"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MQTT_BROKER_URL=mqtt://192.168.2.33:1883
     restart: unless-stopped
 
 volumes:

@@ -18,10 +18,22 @@ console.log('- PORT:', process.env.PORT || 3000);
 console.log('- MQTT_BROKER_URL:', process.env.MQTT_BROKER_URL || 'mqtt://localhost:1883');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = parseInt(process.env.PORT || '3000', 10);
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
 app.use(express.json());
 
 // Initialize services
@@ -29,6 +41,11 @@ const mqttBrokerUrl = process.env.MQTT_BROKER_URL || 'mqtt://localhost:1883';
 console.log('Connecting to MQTT broker at:', mqttBrokerUrl);
 export const mqttService = new MQTTService(mqttBrokerUrl);
 export const automationManager = new AutomationManager(mqttService);
+
+// Test route
+app.get('/test', (req, res) => {
+  res.json({ message: 'Server is accessible' });
+});
 
 // Routes
 app.use('/api/automations', automationRoutes);
@@ -42,7 +59,7 @@ app.get('/health', (req, res) => {
 });
 
 // Start server
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
   
   // Try to connect to MQTT broker
